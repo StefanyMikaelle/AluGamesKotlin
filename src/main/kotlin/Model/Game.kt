@@ -1,7 +1,7 @@
-package org.example
+package org.example.Model
 
 data class Game (val title:String, val cover:String){
-    val description= ""
+    var description: String? = null
     override fun toString(): String {
         return "My Game: \n" +
                 "Title: $title \n" +
