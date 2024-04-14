@@ -1,5 +1,7 @@
 package Model
 
+import org.example.Model.Game
+import java.util.*
 import kotlin.random.Random
 
 data class Gamer(var name:String, var email:String){
@@ -48,6 +50,27 @@ data class Gamer(var name:String, var email:String){
         }
     }
 
+    companion object{
+        fun createGamer(read: Scanner):Gamer{
+            println("Welcome to AluGames! Let's register. Enter your name:")
+            val name = read.nextLine()
+            println("Type your e-mail:")
+            val email = read.nextLine()
+            println("Do you want to complete your registration with username and date of birth? (Y/N)")
+            val option = read.nextLine()
+
+            if (option.equals("y", true)){
+                println("Enter your date of birth (DD/MM/YYYY):")
+                val dateOfBirth = read.nextLine()
+                println("Enter your username:")
+                val user = read.nextLine()
+
+                return Gamer(name, email, dateOfBirth, user)
+            }else{
+                return Gamer(name, email)
+            }
+        }
+    }
 
 
 
