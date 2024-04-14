@@ -1,6 +1,6 @@
 # AluGames
 
-É uma plataforma de alugueis de jogos.
+É uma plataforma de alugueis de jogos imagens abaixo de referência para o MVP no backend desenvolvido em Kotlin.
 
 
 [![Alu-Games-1.png](https://i.postimg.cc/pdr2xqFP/Alu-Games-1.png)](https://postimg.cc/DWVVPQ6N)
