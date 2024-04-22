@@ -136,3 +136,24 @@ class JasperService {
         return null
     }
 }
+
+
+
+
+import net.sf.jasperreports.engine.JRException
+import net.sf.jasperreports.engine.JasperFillManager
+import net.sf.jasperreports.engine.JasperPrint
+import net.sf.jasperreports.engine.JasperReport
+import net.sf.jasperreports.view.JasperViewer
+import java.sql.Connection
+
+fun abrirJasperViewer(jrxml: String, connection: Connection) {
+    val report: JasperReport? = compilarJrxml(jrxml)
+    try {
+        val print: JasperPrint = JasperFillManager.fillReport(report, params, connection)
+        val viewer = JasperViewer(print)
+        viewer.isVisible = true
+    } catch (e: JRException) {
+        e.printStackTrace()
+    }
+}
