@@ -157,3 +157,42 @@ fun abrirJasperViewer(jrxml: String, connection: Connection) {
         e.printStackTrace()
     }
 }
+
+
+import net.sf.jasperreports.engine.JRException
+import net.sf.jasperreports.engine.JasperFillManager
+import net.sf.jasperreports.engine.JasperPrint
+import net.sf.jasperreports.engine.JasperReport
+import net.sf.jasperreports.view.JasperViewer
+import java.io.InputStream
+import java.util.HashMap
+
+fun abrirJasperViewer(jrxml: String, params: Map<String, Any>) {
+    val report: JasperReport? = compilarJrxml(jrxml)
+    try {
+        val print: JasperPrint = JasperFillManager.fillReport(report, params, null)
+        val viewer = JasperViewer(print)
+        viewer.isVisible = true
+    } catch (e: JRException) {
+        e.printStackTrace()
+    }
+}
+
+fun compilarJrxml(arquivo: String): JasperReport? {
+    try {
+        val isStream: InputStream? = object {}.javaClass.classLoader.getResourceAsStream(arquivo)
+        return net.sf.jasperreports.engine.JasperCompileManager.compileReport(isStream)
+    } catch (e: JRException) {
+        e.printStackTrace()
+    }
+    return null
+}
+
+fun main() {
+    val params: MutableMap<String, Any> = HashMap()
+    params["param1"] = "Valor 1"
+    params["param2"] = 123
+
+    abrirJasperViewer("seu_arquivo.jasper", params)
+}
+
