@@ -112,3 +112,27 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+
+import net.sf.jasperreports.engine.JasperCompileManager
+import net.sf.jasperreports.engine.JasperReport
+import java.io.InputStream
+
+class JasperService {
+
+    private val params: MutableMap<String, Any> = LinkedHashMap()
+
+    fun addParams(key: String, value: Any) {
+        params[key] = value
+    }
+
+    private fun compilarJrxml(arquivo: String): JasperReport? {
+        try {
+            val isStream: InputStream? = javaClass.classLoader.getResourceAsStream(arquivo)
+            return JasperCompileManager.compileReport(isStream)
+        } catch (e: JRException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+}
