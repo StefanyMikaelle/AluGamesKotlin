@@ -81,3 +81,72 @@ fun main() {
         e.printStackTrace()
     }
 }
+
+
+
+
+
+
+import net.sf.jasperreports.engine.JasperExportManager
+import net.sf.jasperreports.engine.JasperFillManager
+import net.sf.jasperreports.engine.JasperPrint
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource
+import com.itextpdf.text.pdf.PdfReader
+import com.itextpdf.text.pdf.PdfStamper
+import com.itextpdf.text.pdf.PdfWriter
+import java.io.File
+import java.io.FileOutputStream
+
+fun main() {
+    try {
+        // Caminho do arquivo .jasper
+        val jasperReportPath = "caminho/para/seu/relatorio.jasper"
+        
+        // Obtém a pasta de downloads do usuário
+        val downloadsFolderPath = getDownloadsFolderPath()
+        
+        // Caminho do PDF gerado
+        val generatedPdfPath = "$downloadsFolderPath/relatorio.pdf"
+        // Caminho do PDF protegido
+        val protectedPdfPath = "$downloadsFolderPath/relatorio_protegido.pdf"
+        
+        // Parâmetros do relatório
+        val parameters = mapOf<String, Any>()
+        
+        // Fonte de dados do relatório (exemplo com lista vazia)
+        val dataSource = JRBeanCollectionDataSource(emptyList<Any>())
+        
+        // Preenchimento do relatório
+        val jasperPrint: JasperPrint = JasperFillManager.fillReport(jasperReportPath, parameters, dataSource)
+        
+        // Exporta para PDF
+        JasperExportManager.exportReportToPdfFile(jasperPrint, generatedPdfPath)
+        
+        // Senha de usuário
+        val userPassword = "senhaUsuario"
+        // Senha de proprietário (pode ser usada para alterar permissões)
+        val ownerPassword = "senhaProprietario"
+        
+        // Protege o PDF com senha usando iText
+        val reader = PdfReader(generatedPdfPath)
+        val stamper = PdfStamper(reader, FileOutputStream(protectedPdfPath))
+        stamper.setEncryption(userPassword.toByteArray(), ownerPassword.toByteArray(),
+                PdfWriter.ALLOW_PRINTING, PdfWriter.ENCRYPTION_AES_128)
+        stamper.close()
+        reader.close()
+        
+        println("PDF protegido com sucesso na pasta de downloads: $protectedPdfPath")
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+// Função para obter a pasta de downloads do usuário
+fun getDownloadsFolderPath(): String {
+    val home = System.getProperty("user.home")
+    return when {
+        File(home, "Downloads").exists() -> "$home/Downloads"
+        File(home, "downloads").exists() -> "$home/downloads"
+        else -> home // Fallback para a pasta home caso a pasta Downloads não seja encontrada
+    }
+}
