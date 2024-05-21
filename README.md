@@ -29,3 +29,55 @@ https://whimsical.com/alugames-kotlin-telas-7KMoeaHwuxTiuwvKmgYkBN
 ## Plano de Estudos
 
 [![kotlin.png](https://i.postimg.cc/8k0BxZ8t/kotlin.png)](https://postimg.cc/YjQWWfCW)
+
+
+
+
+import net.sf.jasperreports.engine.JasperExportManager
+import net.sf.jasperreports.engine.JasperFillManager
+import net.sf.jasperreports.engine.JasperPrint
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource
+import com.itextpdf.text.pdf.PdfReader
+import com.itextpdf.text.pdf.PdfStamper
+import com.itextpdf.text.pdf.PdfWriter
+import java.io.FileOutputStream
+
+fun main() {
+    try {
+        // Caminho do arquivo .jasper
+        val jasperReportPath = "caminho/para/seu/relatorio.jasper"
+        // Caminho do PDF gerado
+        val generatedPdfPath = "caminho/para/seu/relatorio.pdf"
+        // Caminho do PDF protegido
+        val protectedPdfPath = "caminho/para/seu/relatorio_protegido.pdf"
+        
+        // Parâmetros do relatório
+        val parameters = mapOf<String, Any>()
+        
+        // Fonte de dados do relatório (exemplo com lista vazia)
+        val dataSource = JRBeanCollectionDataSource(emptyList<Any>())
+        
+        // Preenchimento do relatório
+        val jasperPrint: JasperPrint = JasperFillManager.fillReport(jasperReportPath, parameters, dataSource)
+        
+        // Exporta para PDF
+        JasperExportManager.exportReportToPdfFile(jasperPrint, generatedPdfPath)
+        
+        // Senha de usuário
+        val userPassword = "senhaUsuario"
+        // Senha de proprietário (pode ser usada para alterar permissões)
+        val ownerPassword = "senhaProprietario"
+        
+        // Protege o PDF com senha usando iText
+        val reader = PdfReader(generatedPdfPath)
+        val stamper = PdfStamper(reader, FileOutputStream(protectedPdfPath))
+        stamper.setEncryption(userPassword.toByteArray(), ownerPassword.toByteArray(),
+                PdfWriter.ALLOW_PRINTING, PdfWriter.ENCRYPTION_AES_128)
+        stamper.close()
+        reader.close()
+        
+        println("PDF protegido com sucesso.")
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
