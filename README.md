@@ -237,10 +237,9 @@ fun protectPdfWithPassword(srcPath: String, destPath: String, userPassword: Stri
 
 
 
-2
-3
-4
+
 <property name="net.sf.jasperreports.export.pdf.encrypted" value="True"/>
 <property name="net.sf.jasperreports.export.pdf.128.bit.key" value="True"/>
 <property name="net.sf.jasperreports.export.pdf.user.password" value="mySuperPass"/>
 <property name="net.sf.jasperreports.export.pdf.owner.password" value="mySuperPass"/>
+
