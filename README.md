@@ -31,41 +31,65 @@ https://whimsical.com/alugames-kotlin-telas-7KMoeaHwuxTiuwvKmgYkBN
 [![kotlin.png](https://i.postimg.cc/8k0BxZ8t/kotlin.png)](https://postimg.cc/YjQWWfCW)
 
 
+import net.sf.jasperreports.engine.JasperExportManager
+import net.sf.jasperreports.engine.JasperFillManager
+import net.sf.jasperreports.engine.JasperPrint
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.whenever
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import kotlin.test.assertEquals
 
 @RunWith(MockitoJUnitRunner::class)
-class ReportServiceTest {
+class PdfComponentTest {
 
-    @Mock
+    @InjectMocks
     private lateinit var pdfComponent: PdfComponent
 
     @Mock
-    private lateinit var util: GenerateOficialData
+    private lateinit var mockJasperPrint: JasperPrint
 
-    @InjectMocks
-    private lateinit var reportService: ReportService
+    @Before
+    fun setUp() {
+        MockitoAnnotations.initMocks(this)
+    }
 
     @Test
-    fun `generate should return ByteArray from PdfComponent`() {
-        val mockDdCPdfResponse = DDCPdfResponse("12345678900")
-        val mockPdfByteArray = "pdf content".toByteArray()
+    fun `handlePrint should return a ByteArray with the generated PDF`() {
+        val reportName = "testReport.jasper"
+        val rows = "test data"
+        val passwordPdf = "12345"
 
-        whenever(util.generateDataPdf()).thenReturn(mockDdCPdfResponse)
-        whenever(pdfComponent.generatePdfArray(mockDdCPdfResponse)).thenReturn(mockPdfByteArray)
+        // Mocking static methods using PowerMockito
+        Mockito.mockStatic(JasperFillManager::class.java)
+        Mockito.mockStatic(JasperExportManager::class.java)
 
-        val result = reportService.generate()
+        Mockito.`when`(
+            JasperFillManager.fillReport(
+                Mockito.eq(reportName),
+                Mockito.anyMap(),
+                Mockito.any()
+            )
+        ).thenReturn(mockJasperPrint)
 
-        assertEquals(mockPdfByteArray.toList(), result.toList())
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        Mockito.doAnswer { invocation ->
+            val outputStream = invocation.getArgument<ByteArrayOutputStream>(1)
+            outputStream.write("pdf content".toByteArray())
+            null
+        }.`when`(JasperExportManager::class.java, "exportReportToPdfStream", Mockito.any(JasperPrint::class.java), Mockito.any(ByteArrayOutputStream::class.java))
+
+        val result = pdfComponent.handlePrint(reportName, rows, passwordPdf)
+
+        assertEquals("pdf content".toByteArray().toList(), result.toList())
     }
 }
-
 
 
 
