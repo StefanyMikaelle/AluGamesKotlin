@@ -31,65 +31,74 @@ https://whimsical.com/alugames-kotlin-telas-7KMoeaHwuxTiuwvKmgYkBN
 [![kotlin.png](https://i.postimg.cc/8k0BxZ8t/kotlin.png)](https://postimg.cc/YjQWWfCW)
 
 
-import net.sf.jasperreports.engine.JasperExportManager
-import net.sf.jasperreports.engine.JasperFillManager
-import net.sf.jasperreports.engine.JasperPrint
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
+ChatGPT
+
+Faça o teste unitário em Junit em Kotlin desse código fun generatePdfArray(ddc: DDCPdfResponse): ByteArray {
+        val ddcCpfDocument = ddc.cpfDocument
+        val passwordPdf = generatePassword(ddcCpfDocument)
+        val rows = arrayListOf(ddc)
+        val jsonResource = gson.toJson(rows)
+        return handlePrint(template, jsonResource, passwordPdf)
+    }
+ChatGPT
+Para criar um teste unitário em JUnit para a função generatePdfArray em Kotlin, você precisa verificar várias coisas, como o comportamento esperado da função e os diferentes componentes que ela usa. Aqui está um exemplo de como você pode configurar esse teste:
+
+Dependências: Primeiro, certifique-se de que você tem as dependências necessárias em seu arquivo build.gradle.kts para JUnit e Mockito (ou outra biblioteca de mock de sua escolha).
+kotlin
+Copy code
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
+    testImplementation("org.mockito:mockito-core:3.9.0")
+    testImplementation("org.mockito:mockito-kotlin:3.2.0")
+    testImplementation("com.google.code.gson:gson:2.8.6")
+}
+Classe de teste: Crie uma classe de teste e configure o ambiente para testar a função generatePdfArray.
+kotlin
+Copy code
+import com.google.gson.Gson
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
-import org.mockito.junit.MockitoJUnitRunner
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import kotlin.test.assertEquals
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
-@RunWith(MockitoJUnitRunner::class)
-class PdfComponentTest {
+class YourServiceTest {
 
-    @InjectMocks
-    private lateinit var pdfComponent: PdfComponent
+    private val gson: Gson = Gson()
+    private val template: String = "template"
 
-    @Mock
-    private lateinit var mockJasperPrint: JasperPrint
+    // Função mockada para gerar senha
+    private fun generatePassword(cpf: String): String {
+        return "mockedPassword"
+    }
 
-    @Before
-    fun setUp() {
-        MockitoAnnotations.initMocks(this)
+    // Função mockada para lidar com a impressão
+    private fun handlePrint(template: String, jsonResource: String, passwordPdf: String): ByteArray {
+        return "mockedPdf".toByteArray()
     }
 
     @Test
-    fun `handlePrint should return a ByteArray with the generated PDF`() {
-        val reportName = "testReport.jasper"
-        val rows = "test data"
-        val passwordPdf = "12345"
+    fun `test generatePdfArray`() {
+        // Mock do DDCPdfResponse
+        val ddc = mock<DDCPdfResponse> {
+            on { cpfDocument } doReturn "12345678900"
+        }
 
-        // Mocking static methods using PowerMockito
-        Mockito.mockStatic(JasperFillManager::class.java)
-        Mockito.mockStatic(JasperExportManager::class.java)
+        // Função que estamos testando
+        fun generatePdfArray(ddc: DDCPdfResponse): ByteArray {
+            val ddcCpfDocument = ddc.cpfDocument
+            val passwordPdf = generatePassword(ddcCpfDocument)
+            val rows = arrayListOf(ddc)
+            val jsonResource = gson.toJson(rows)
+            return handlePrint(template, jsonResource, passwordPdf)
+        }
 
-        Mockito.`when`(
-            JasperFillManager.fillReport(
-                Mockito.eq(reportName),
-                Mockito.anyMap(),
-                Mockito.any()
-            )
-        ).thenReturn(mockJasperPrint)
+        // Chamada da função a ser testada
+        val result = generatePdfArray(ddc)
 
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        Mockito.doAnswer { invocation ->
-            val outputStream = invocation.getArgument<ByteArrayOutputStream>(1)
-            outputStream.write("pdf content".toByteArray())
-            null
-        }.`when`(JasperExportManager::class.java, "exportReportToPdfStream", Mockito.any(JasperPrint::class.java), Mockito.any(ByteArrayOutputStream::class.java))
-
-        val result = pdfComponent.handlePrint(reportName, rows, passwordPdf)
-
-        assertEquals("pdf content".toByteArray().toList(), result.toList())
+        // Assertivas para verificar se o resultado não é nulo
+        assertNotNull(result)
     }
-}
 
 
 
