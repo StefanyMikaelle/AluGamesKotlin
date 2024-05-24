@@ -32,4 +32,65 @@ https://whimsical.com/alugames-kotlin-telas-7KMoeaHwuxTiuwvKmgYkBN
 
 
 
+import com.google.gson.Gson
+import net.sf.jasperreports.engine.JasperExportManager
+import net.sf.jasperreports.engine.JasperFillManager
+import net.sf.jasperreports.engine.JasperPrint
+import net.sf.jasperreports.engine.fill.JsonQLQueryExecuterFactory
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
+import kotlin.test.assertEquals
+
+@RunWith(MockitoJUnitRunner::class)
+class PdfComponentTest {
+
+    @Mock
+    private lateinit var jasperFillManager: JasperFillManager
+
+    @Mock
+    private lateinit var jasperExportManager: JasperExportManager
+
+    @Mock
+    private lateinit var gson: Gson
+
+    @InjectMocks
+    private lateinit var pdfComponent: PdfComponent
+
+    @Test
+    fun `generatePdfArray should return a ByteArray with the generated PDF`() {
+        val ddc = DDCPdfResponse("12345678900")
+        val template = "DDC_Documento_Descritivo_de_Credito_Final_com_Senha.jasper"
+        val passwordPdf = "00987654321" // Reverse of "12345678900"
+        val rows = arrayListOf(ddc)
+        val jsonResource = """[{"cpfDocument":"12345678900"}]"""
+        val mockJasperPrint = Mockito.mock(JasperPrint::class.java)
+
+        whenever(gson.toJson(rows)).thenReturn(jsonResource)
+        whenever(jasperFillManager.fillReport(
+            Mockito.eq(template),
+            Mockito.anyMap(),
+            Mockito.any()
+        )).thenReturn(mockJasperPrint)
+
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        whenever(jasperExportManager.exportReportToPdfStream(
+            Mockito.any(JasperPrint::class.java),
+            Mockito.any(ByteArrayOutputStream::class.java)
+        )).thenAnswer {
+            val outputStream = it.getArgument<ByteArrayOutputStream>(1)
+            outputStream.write("pdf content".toByteArray())
+        }
+
+        val result = pdfComponent.generatePdfArray(ddc)
+
+        assertEquals("pdf content".toByteArray().toList(), result.toList())
+    }
+}
+
+
 
