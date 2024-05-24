@@ -31,6 +31,40 @@ https://whimsical.com/alugames-kotlin-telas-7KMoeaHwuxTiuwvKmgYkBN
 [![kotlin.png](https://i.postimg.cc/8k0BxZ8t/kotlin.png)](https://postimg.cc/YjQWWfCW)
 
 
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
+import kotlin.test.assertEquals
+
+@RunWith(MockitoJUnitRunner::class)
+class ReportServiceTest {
+
+    @Mock
+    private lateinit var pdfComponent: PdfComponent
+
+    @Mock
+    private lateinit var util: GenerateOficialData
+
+    @InjectMocks
+    private lateinit var reportService: ReportService
+
+    @Test
+    fun `generate should return ByteArray from PdfComponent`() {
+        val mockDdCPdfResponse = DDCPdfResponse("12345678900")
+        val mockPdfByteArray = "pdf content".toByteArray()
+
+        whenever(util.generateDataPdf()).thenReturn(mockDdCPdfResponse)
+        whenever(pdfComponent.generatePdfArray(mockDdCPdfResponse)).thenReturn(mockPdfByteArray)
+
+        val result = reportService.generate()
+
+        assertEquals(mockPdfByteArray.toList(), result.toList())
+    }
+}
 
 
 
